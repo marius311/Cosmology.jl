@@ -1,6 +1,6 @@
 module Cosmology
 
-using With, TypeDefaults, Units
+using With, TypeDefaults, Units, PhysicalConstants
 using PyCall
 
 export new_params,Params,add_derived!,ργ,ρν,ρ_species,Hubble,Θmc,Θs,D_prop,DA,rs,theta2hubble!,zstar_HS,quad
@@ -8,7 +8,7 @@ export ρx_over_ωx
 
 
 const sec = Units.sec
-const ρx_over_ωx = 3(100km/sec/Mpc)^2/(8π)
+const ρx_over_ωx = 3(100km/ sec/Mpc)^2/(8π)
 const nfac = 7/8*(4/11)^(4/3)
 const π² = π^2
 const H0units = km/sec/Mpc
@@ -35,6 +35,7 @@ end
     
     #derived
     ργ₀::T
+    ρc₀::T
     Tγ₀::T
     h²::T
     ωk::T
@@ -52,11 +53,15 @@ new_params(;kwargs...) = add_derived!(Params{Float64}(;kwargs...))
 register_with(Params,[:add_derived!,:ργ,:ρν,:ρ_species,:Hubble,:Θmc,:Θs,:D_prop,:DA,:rs,:theta2hubble!,:zstar_HS,:quad])
 
 
-@with Params quad(f, xmin, xmax; kwargs...) = quadgk(f, convert(Float64,xmin), convert(Float64,xmax); reltol=reltol, kwargs...)[1]::Float64
+@with Params function quad(f, xmin, xmax; kwargs...)
+    quadgk(f, convert(Float64,xmin), convert(Float64,xmax); reltol=reltol, kwargs...)[1]::Float64
+end
 
 @with p::Params function add_derived!()
     Tγ₀ = (Tcmb*Kelvin)
     ργ₀ = (π²/15)*Tγ₀^4
+    ρc₀ = ωc/ρx_over_ωx
+    ρb₀ = ωb/ρx_over_ωx
     h² = (H0/100)^2
     ωk = Ωk*h²
     if mν == 0
@@ -65,6 +70,7 @@ register_with(Params,[:add_derived!,:ργ,:ρν,:ρ_species,:Hubble,:Θmc,:Θs,:
     end
     ων = ρν(0)/ρx_over_ωx
     ωΛ = h² - ωk - ωb - ωc - ων - ργ₀/ρx_over_ωx
+    ρc₀ = ωc/ρx_over_ωx
     p
 end
     
@@ -109,7 +115,12 @@ end
 """Hubble constant at redshift z"""
 @with Params Hubble(z) = Hfac*sqrt(ρx_over_ωx*((ωc+ωb)*(1+z)^3 + ωk*(1+z)^2 + ωΛ) + ργ(z) + ρν(z))
 
-"""Θs at the decoupling redshift calculated from zstar_HS (ie CosmoMC's "theta_mc")"""
+"""
+Θs at the decoupling redshift calculated from zstar_HS. 
+
+This is like CosmoMC's "theta_mc", except CosmoMC's also uses some additional
+approximations which we don't use here. 
+"""
 @with Params Θmc() = Θs(zstar_HS())
 
 """Angular size of the sound horizon [rad] at redshift z"""
@@ -148,7 +159,7 @@ end
 # Miscellaneous
 # -------------
 
-"""Set theta_mc (by adjusting H0 accordingly). Returns H0."""
+"""Set Θmc (by adjusting H0 accordingly). Returns H0."""
 @with Params theta2hubble!(Θ) = brentq((H0′->(H0=H0′; add_derived!(); Θmc()-Θ)), 20, 200, rtol=reltol)
 
 """Redshift at decoupling using fitting formula from Hu & Sugiyama """
