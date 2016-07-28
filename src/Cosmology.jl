@@ -8,7 +8,7 @@ export ρx_over_ωx
 
 
 const sec = Units.sec
-const ρx_over_ωx = 3(100km/ sec/Mpc)^2/(8π)
+const ρx_over_ωx = 3(100km/sec/Mpc)^2/(8π)
 const nfac = 7/8*(4/11)^(4/3)
 const π² = π^2
 const H0units = km/sec/Mpc
@@ -50,7 +50,7 @@ end
 new_params(;kwargs...) = add_derived!(Params{Float64}(;kwargs...))
 
 
-register_with(Params,[:add_derived!,:ργ,:ρν,:ρ_species,:Hubble,:Θmc,:Θs,:D_prop,:DA,:rs,:theta2hubble!,:zstar_HS,:quad])
+register_with(Params,[:add_derived!,:ργ,:ρν,:ρ_species,:Hubble,:Θmc,:Θs,:dist,:DA,:rs,:theta2hubble!,:zstar_HS,:quad,:η])
 
 
 @with Params function quad(f, xmin, xmax; kwargs...)
@@ -60,8 +60,8 @@ end
 @with p::Params function add_derived!()
     Tγ₀ = (Tcmb*Kelvin)
     ργ₀ = (π²/15)*Tγ₀^4
-    ρc₀ = ωc/ρx_over_ωx
-    ρb₀ = ωb/ρx_over_ωx
+    ρc₀ = ωc*ρx_over_ωx
+    ρb₀ = ωb*ρx_over_ωx
     h² = (H0/100)^2
     ωk = Ωk*h²
     if mν == 0
@@ -70,7 +70,6 @@ end
     end
     ων = ρν(0)/ρx_over_ωx
     ωΛ = h² - ωk - ωb - ωc - ων - ργ₀/ρx_over_ωx
-    ρc₀ = ωc/ρx_over_ωx
     p
 end
     
@@ -126,20 +125,25 @@ approximations which we don't use here.
 """Angular size of the sound horizon [rad] at redshift z"""
 @with Params Θs(z) = rs(z) / DA(z)
 
-"""Proper comoving distance to redshift z"""
-@with Params D_prop(z) = quad(z′->1/Hubble(z′), 0, z)
+"""Conformal time between two redshifts (positive if z2>z1)."""
+@with Params η(z1,z2) = quad(z′->1/Hubble(z′), z1, z2)
 
+"""Conformal time to redshift z (between -∞ and 0)"""
+@with Params η(z) = η(z,0)
+
+"""Proper comoving distance to redshift z."""
+@with Params dist(z) = -η(z)
 
 """Comoving angular-diameter distance to redshift z."""
 @with Params function DA(z)
-    K=-ωk*(100km/sec)^2
-    d = D_prop(z)
-    if K<0 
+    d = dist(z)
+    K = -ωk*(100km/sec)^2
+    if K==0
+        d
+    elseif K<0 
         1/sqrt(-K)*sin(d*sqrt(-K))
     elseif K>0
         1/sqrt(K)*sinh(d*sqrt(K))
-    else
-        d
     end
 end
 
@@ -153,6 +157,9 @@ end
 @with Params function τ(Xe::Function, z1, z2)
     σT*(ωb*ρx_over_ωx)/mH*(1-Yp) * quad(z->Xe(z)/Hubble(z)*(1+z)^2, z1, z2)
 end
+
+"""Optical depth to redshift z given an ionization fraction history Xe"""
+@with Params τ(Xe::Function, z) = τ(Xe, 0, z)
 
 
 # -------------

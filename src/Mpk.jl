@@ -1,79 +1,45 @@
 module Mpk
 
 using With
-using Cosmology: Hubble, Params, ργ, ρν
-using Sundials
+using Cosmology: Hubble, Params, ργ, ρν, η
+using ODESolve: @eqs, odesolve
 
-const i = 0+im
+const i = im
 
-
-function odesolve(F,y0,dy0,ts)
-
-    n = length(y0)
-    y0 = [real(y0); imag(y0)]
-    dy0 = [real(dy0); imag(dy0)]
-    
-    function Fwrap(t,y,dy,eqs)
-        y′  =  y[1:n] + i *y[n+1:end]
-        dy′ = dy[1:n] + i*dy[n+1:end]
-        
-        eqs′ = F(t,y′,dy′)
-    
-        eqs[1:n]     = real(eqs′)
-        eqs[n+1:end] = imag(eqs′)
-    end
-        
-    Sundials.idasol(Fwrap,y0,dy0,ts)
-end
-
-macro eqs(ex)
-    @assert isa(ex,Expr) && ex.head == :block
-    
-    rex = :([])
-    
-    for (i,arg) in enumerate(ex.args)
-        if ~isa(arg,LineNumberNode)
-            println(isa(arg,LineNumberNode),arg.head,"\n")
-            @assert (isa(arg,Expr) && (arg.head == :comparison))
-            push!(rex.args,:($(arg[1]) - $arg[3]))
-        end
-    end
-    
-    :($(esc(rex)))
-end
-
-@with Params function mpk(k,z)
+@with Params function mpk(k,zs::Array)
     
     function F(η, y, dy)
 
         Θ₀, Θ₁, δ, v, Φ, a = y
         dΘ₀dη, dΘ₁dη, dδdη, dvdη, dΦdη, dadη = dy
         
-        z = real(1/a-1)
+        local z = real(1/a-1)
         
         #see e.g. Dodelson, Modern Cosmology, pg 186
+        H = Hubble(z)
         @eqs begin
             dΘ₀dη + k*Θ₁ == -dΦdη
             dΘ₁dη - k*Θ₀/3 == -k*Φ/3
             dδdη + i*k*v == -3dΦdη
             dvdη + (dadη/a)*v == i*k*Φ
-            (k^2)*Φ + 3(dadη/a)*(dΦdη+(dadη/a)*dΦdη) == 4*π*a^2*(δ*ρc₀*a^-3 + (ργ(z)+ρν(z))*Θ₀)
-            (dadη/a^2) == Hubble(z)
+            (k^2)*Φ + 3*a*H*(dΦdη+a*H*Φ) == 4*π*a^2*(δ*ρc₀*a^-3 + (ργ(z)+ρν(z))*Θ₀)
+            (dadη/a^2) == H
         end
         
     end
     
-    a₀ = 1e-6
+    a₀ = 1e-5
     z₀ = 1/a₀-1
-    η₀ = 
+    η₀ = η(z₀)
+    H = Hubble(z₀)
     
-    y₀ =  [1, 0, 1,   0, 1, a₀]
-    dy₀ = [0, 0, 0,   0, 0, a₀^2*Hubble(1/a₀-1)]
+    #                Θ₀, Θ₁,   δ,   v,     Φ, a
+    y₀ =  Complex128[1,  0,    1/3, 0,     2, a₀]
+    dy₀ = Complex128[0,  -k/3, 0,   2*i*k, -3/2*a₀*H, a₀^2*H]
     
-    odesolve(F,y₀,dy₀,[z₀,z])
+    ηs = [η(z) for z in zs]
+    y, dy = odesolve(F,y₀,dy₀,[η₀,ηs...],diffstates=fill(true,6))
     
-
-
 end
 
 
