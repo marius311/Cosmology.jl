@@ -38,7 +38,7 @@ module ODESolve
 
 using Sundials
 
-function odesolve(F,y0,dy0,ts; kwargs...)
+function odesolve(F,y0::Array{Complex128},dy0::Array{Complex128},ts; kwargs...)
 
     n = length(y0)
     y0 = [real(y0); imag(y0)]
@@ -58,6 +58,18 @@ function odesolve(F,y0,dy0,ts; kwargs...)
     (y[:,1:n] + im*y[:,n+1:end]), (dy[:,1:n] + im*dy[:,n+1:end])
 
 end
+
+
+function odesolve(F,y0::Array{Float64},dy0::Array{Float64},ts; kwargs...)
+    
+    function Fwrap(t,y,dy,eqs)
+        eqs[1:end] = F(t,y,dy)
+    end
+        
+    Sundials.idasol(Fwrap,y0,dy0,ts; kwargs...)
+
+end
+
 
 macro eqs(ex)
     @assert isa(ex,Expr) && ex.head == :block

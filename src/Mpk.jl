@@ -1,12 +1,11 @@
 module Mpk
 
 using With
-using Cosmology: Hubble, Params, ργ, ρν, η
+using Cosmology: Hubble, Params, ργ, ρν, η, ρc, ρb
 using ODESolve: @eqs, odesolve
+using PhysicalConstants: mp, σT
 
 export mpk
-
-const i = im
 
 @with Params function mpk(k,zs::Array)
 
@@ -15,35 +14,52 @@ const i = im
         a = exp(lna)
         z = 1/a - 1
         H = Hubble(z)
+        k² = k^2
         
-        Θ₀, Θ₁, δ, v, Φ = y
-        dΘ₀dη, dΘ₁dη, dδdη, dvdη, dΦdη = dy_dlna*a*H
-        dadη = a^2 * H
+        δγ,  θγ,  δc,  θc,  δb,  θb,  ϕ  = y
+        δγ′, θγ′, δc′, θc′, δb′, θb′, ϕ′ = dy_dlna*a*H
+        a′ = a^2 * H
         
-        #see e.g. Dodelson, Modern Cosmology, pg 186
+        ψ = ϕ
+        
+        R = (3ρb(z))/(4ργ(z))
+        cₛ² = 1/(3(1+R))
+        nₑ = ρb(z)/mp
+        
         @eqs begin
-            dΘ₀dη + k*Θ₁ == -dΦdη
-            dΘ₁dη - k*Θ₀/3 == -k*Φ/3
-            dδdη + i*k*v == -3dΦdη
-            dvdη + (dadη/a)*v == i*k*Φ
-            (k^2)*Φ + 3*(dadη/a)*(dΦdη+(dadη/a)*Φ) == 4*π*a^2*(δ*ρc₀*a^-3 + 4(ργ(z)+ρν(z))*Θ₀)
+            #Photons 
+            δγ′ == -4/3*θγ + 4ϕ′
+            θγ′ == k²/4*δγ + k²*ψ
+            
+            #CDM
+            δc′ == -θc + 3ϕ′
+            θc′ == -(a′/a)*θc + k²*ψ
+            
+            #Baryons
+            δb′ == -θb + 3ϕ′
+            θb′ == -(a′/a)*θb + cₛ²*k²*δb + a*nₑ*σT/R*(θγ-θb) + k²*ψ
+            
+            #Einstein equations
+            k²*ϕ + 3*(a′/a)*(ϕ′+(a′/a)*ψ) == -4π*a^2*(ρc(z)*δc + ρb(z)*δb + (ργ(z)+ρν(z))*δγ)
         end
         
     end
     
-    a₀ = 1e-7
-    z₀ = 1/a₀-1
-    η₀ = η(z₀)
-    H = Hubble(z₀)
-
-    #                Θ₀, Θ₁, δ, v, Φ
-    y₀ =  Complex128[1,  0,  3, 0, 2]
-    dy₀ = Complex128[0,  0,  0, 0, 0]
+    #             δγ  θγ  δc  θc  δb  θb  ϕ
+    y₀ =  Float64[4,  0,  3,  0,  3,  0, -2]
+    y′₀ = Float64[0,  0,  0,  0,  0,  0,  0]
     
+    a₀ = 1e-7
     as = 1./(1+zs)
-    y, dy = odesolve(F,y₀,dy₀,log([a₀,as...]))
+    
+    # println(F(a₀,y₀,y′₀))
+    
+    y, dy = odesolve(F,y₀,y′₀,log([a₀,as...]))
     
 end
+
+
+@with Params mpk(k,z::Float64) = mpk(k,[z])
 
 
 end

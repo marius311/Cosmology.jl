@@ -3,7 +3,7 @@ module Cosmology
 using With, TypeDefaults, Units, PhysicalConstants
 using PyCall
 
-export new_params,Params,add_derived!,ργ,ρν,ρ_species,Hubble,Θmc,Θs,D_prop,DA,rs,theta2hubble!,zstar_HS,quad
+export new_params,Params,add_derived!,ργ,ρν,ρc,ρ_species,Hubble,Θmc,Θs,D_prop,DA,rs,theta2hubble!,zstar_HS,quad
 export ρx_over_ωx
 
 
@@ -36,6 +36,7 @@ end
     #derived
     ργ₀::T
     ρc₀::T
+    ρb₀::T
     Tγ₀::T
     h²::T
     ωk::T
@@ -50,7 +51,7 @@ end
 new_params(;kwargs...) = add_derived!(Params{Float64}(;kwargs...))
 
 
-register_with(Params,[:add_derived!,:ργ,:ρν,:ρ_species,:Hubble,:Θmc,:Θs,:dist,:DA,:rs,:theta2hubble!,:zstar_HS,:quad,:η])
+register_with(Params,[:add_derived!,:ργ,:ρν,:ρ_species,:ρc,:ρb,:Hubble,:Θmc,:Θs,:dist,:DA,:rs,:theta2hubble!,:zstar_HS,:quad,:η])
 
 
 @with Params function quad(f, xmin, xmax; kwargs...)
@@ -93,6 +94,11 @@ end
     ρν
 end
 
+"""Energy density in cold dark matter at redshift """
+@with Params ρc(z) = ρc₀*(1+z)^3
+
+"""Energy density in cold dark matter at redshift z"""
+@with Params ρb(z) = ρb₀*(1+z)^3
     
 """Energy density at scale factor a in a thermal species with mass m and 2 d.o.f."""
 @with Params function ρ_species(z, m)
