@@ -4,12 +4,13 @@ using With
 using Cosmology: Hubble, Params, ργ, ρν, η, ρc, ρb
 using ODESolve: @eqs, odesolve
 using PhysicalConstants: mp, σT
+using NamedArrays
 
-export mpk
+export solve_boltz
 
-@with Params function mpk(k,zs::Array)
+@with Params function solve_boltz(ks::Array, zs::Array)
 
-    function F(lna, y, dy_dlna)
+    function F(k, lna, y, dy_dlna)
 
         a = exp(lna)
         z = 1/a - 1
@@ -29,7 +30,7 @@ export mpk
         @eqs begin
             #Photons 
             δγ′ == -4/3*θγ + 4ϕ′
-            θγ′ == k²/4*δγ + k²*ψ
+            θγ′ == k²/4*δγ + k²*ψ + a*nₑ*σT*(θb-θγ)
             
             #CDM
             δc′ == -θc + 3ϕ′
@@ -45,21 +46,25 @@ export mpk
         
     end
     
-    #             δγ  θγ  δc  θc  δb  θb  ϕ
-    y₀ =  Float64[4,  0,  3,  0,  3,  0, -2]
-    y′₀ = Float64[0,  0,  0,  0,  0,  0,  0]
+    vars =        [ :δγ, :θγ, :δc, :θc, :δb, :θb, :ϕ ]
+    y₀   = Float64[  4,   0,   3,   0,   3,   0,  -2 ]
+    y′₀  = Float64[  0,   0,   0,   0,   0,   0,   0 ]
     
     a₀ = 1e-7
     as = 1./(1+zs)
     
-    # println(F(a₀,y₀,y′₀))
+    vars′ = [symbol(string(s)"′") for s in vars]
+    soln = NamedArray(zeros(Float64,2*length(vars),length(ks),length(zs)), ([vars; vars′],ks,zs), ("var","k","z"))
     
-    y, dy = odesolve(F,y₀,y′₀,log([a₀,as...]))
+    for (i,k) in enumerate(ks)
+        y, y′ = odesolve((args...)->F(k,args...),y₀,y′₀,log([a₀,as...]))
+        soln[1:length(vars),    i,:] = y[2:end,:]'
+        soln[length(vars)+1:end,i,:] = y′[2:end,:]'
+    end
+    
+    soln
     
 end
-
-
-@with Params mpk(k,z::Float64) = mpk(k,[z])
 
 
 end
