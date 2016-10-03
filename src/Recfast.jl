@@ -5,7 +5,7 @@ function xe(OmegaB::Float64, OmegaC::Float64, OmegaL::Float64,
             Hswitch::Int64, Heswitch::Int64)
             
     ccall( 
-        (:__recfast_MOD_get, "recfast"), Void, 
+        (:get_, "recfast"), Void, 
         (Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Int64}, Ptr{Int64}),
         &OmegaB, &OmegaC, &OmegaL, &HOinp, &Tnow, &Yp, &Hswitch, &Heswitch
     )

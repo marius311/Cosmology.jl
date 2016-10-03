@@ -227,11 +227,6 @@ CH			Sept 2012 (fixed "fu" at low z to match modifications)
 C-
 C	===============================================================
 
-	MODULE recfast
-
-	implicit none
-
-	contains
 	subroutine get(in_OmegaB, in_OmegaC, in_OmegaL, in_HOinp, in_Tnow, in_Yp, in_Hswitch, in_Heswitch)
 
 	real*8 in_OmegaB, in_OmegaC, in_OmegaL, in_HOinp, in_Tnow, in_Yp
@@ -266,6 +261,7 @@ C	--- Parameter statements
 	parameter(bigH=100.0D3/(1.0D6*3.0856775807D16))	!Ho in s-1
 	parameter(tol=1.D-5)				!Tolerance for R-K
 
+	external ION
 
 C	--- Commons
 	common/zLIST/zinitial,zfinal,Nz
@@ -1240,5 +1236,4 @@ c
 c
 c  end abort action
 c
-      end
       end
