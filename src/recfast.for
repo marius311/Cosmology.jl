@@ -227,13 +227,19 @@ CH			Sept 2012 (fixed "fu" at low z to match modifications)
 C-
 C	===============================================================
 
-	PROGRAM recfast
+	MODULE recfast
 
 	implicit none
 
+	contains
+	subroutine get(in_OmegaB, in_OmegaC, in_OmegaL, in_HOinp, in_Tnow, in_Yp, in_Hswitch, in_Heswitch)
+
+	real*8 in_OmegaB, in_OmegaC, in_OmegaL, in_HOinp, in_Tnow, in_Yp
+	integer in_Hswitch, in_Heswitch
+	
 C	--- Arguments
 	real*8 Trad,Tmat
-        real*8 OmegaT,OmegaB,H,HO,HOinp,bigH,G,OmegaL,OmegaK,OmegaC
+	real*8 OmegaT,OmegaB,H,HO,HOinp,bigH,G,OmegaL,OmegaK,OmegaC
 	real*8 z,n,x,x0,rhs,x_H,x_He,x_H0,x_He0
 	real*8 Tnow,zinitial,zfinal,Nnow,z_eq,fnu
 	real*8 zstart,zend,w0,w1,Lw0,Lw1,hw
@@ -260,7 +266,6 @@ C	--- Parameter statements
 	parameter(bigH=100.0D3/(1.0D6*3.0856775807D16))	!Ho in s-1
 	parameter(tol=1.D-5)				!Tolerance for R-K
 
-	external ION
 
 C	--- Commons
 	common/zLIST/zinitial,zfinal,Nz
@@ -314,6 +319,16 @@ C	Atomic data for HeI
 C	Gaussian fits for extra H physics (fit by Adam Moss, modified by
 C	Antony Lewis)
 
+C   Copy function argument parameters to common block data
+	OmegaB = in_OmegaB
+	OmegaC = in_OmegaC
+	OmegaL = in_OmegaL
+	HOinp = in_HOinp
+	Tnow = in_Tnow
+ 	Yp = in_Yp
+ 	Hswitch = in_Hswitch
+	Heswitch = in_Heswitch
+
 C	dimensions for integrator
 	Ndim = 3
 
@@ -333,14 +348,8 @@ c	will output every 10 in z, but this is easily changed also
 	write(*,*)'Enter output file name'
 	read(*,'(a)')fileout
 
-	write(*,*)'Enter Omega_B, Omega_DM, Omega_vac (e.g. 0.04 0.20 0.76)'
-	read(*,*)OmegaB,OmegaC,OmegaL
 	OmegaT=OmegaC+OmegaB            !total dark matter + baryons
 	OmegaK=1.d0-OmegaT-OmegaL	!curvature
-	write(*,'(1x,''Omega_K = '',f4.2)')OmegaK
-	write(*,*)
-	write(*,*)'Enter H_0 (in km/s/Mpc), T_0, Y_p (e.g. 70 2.725 0.25)'
-	read(*,*)HOinp,Tnow,Yp
 
 c	convert the Hubble constant units
 	H = HOinp/100.d0
@@ -380,12 +389,6 @@ C	Matter departs from radiation when t(Th) > H_frac * t(H)
 C	choose some safely small number
 	H_frac = 1.D-3
 
-c       Modification for H correction (Hswitch):
-        write(*,*) 'Modification for H recombination:'
-        write(*,*)'0) no change from old Recfast'
-	write(*,*)'1) include correction'
-		write(*,*)'Enter the choice of modification for H (0-1):'
-	read(*,*)Hswitch
 
 C	Fudge factor to approximate the low z out of equilibrium effect
 	if (Hswitch .eq. 0) then
@@ -394,21 +397,6 @@ C	Fudge factor to approximate the low z out of equilibrium effect
 	  fu=1.125d0
 	end if
 
-C	Modification for HeI recombination (Heswitch):
-	write(*,*)'Modification for HeI recombination:'
-	write(*,*)'0) no change from old Recfast'
-	write(*,*)'1) full expression for escape probability for singlet'
-	write(*,*)'   1P-1S transition'
-	write(*,*)'2) also including effect of contiuum opacity of H on HeI'
-	write(*,*)'   singlet (based in fitting formula suggested by'
-	write(*,*)'   Kholupenko, Ivanchik & Varshalovich, 2007)'
-	write(*,*)'3) only including recombination through the triplets'
-	write(*,*)'4) including 3 and the effect of the contiuum '
-	write(*,*)'   (although this is probably negligible)' 
-	write(*,*)'5) including only 1, 2 and 3'
-	write(*,*)'6) including all of 1 to 4'
-	write(*,*)'Enter the choice of modification for HeI (0-6):'
-	read(*,*)Heswitch
 	 
 c	Set the He fudge factor
 cc	if((Heswitch.eq. 2).or.(Heswitch.eq. 5).or.(Heswitch.eq.6))then
@@ -812,6 +800,7 @@ c	(suggested by Adam Moss)
 
 	return
 
+	end
 	end
 
 C===============================================================================
@@ -1251,4 +1240,5 @@ c
 c
 c  end abort action
 c
+      end
       end
