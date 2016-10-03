@@ -53,7 +53,7 @@ export solve_boltz
     a₀ = 1e-7
     as = 1./(1+zs)
     
-    vars′ = [symbol(string(s)"′") for s in vars]
+    vars′ = [symbol(string(v)"′") for v in vars]
     soln = NamedArray(zeros(Float64,2*length(vars),length(ks),length(zs)), ([vars; vars′],ks,zs), ("var","k","z"))
     
     for (i,k) in enumerate(ks)

@@ -1,6 +1,6 @@
 module TypeDefaults
 
-export @with_defaults
+export @defaults
 
 # Transforms :(a::b) -> :a, from 
 decolon2(a::Expr) = (@assert a.head==:(::);  a.args[1])
@@ -20,7 +20,7 @@ function typename(typedef::Expr)
 end
 
 
-macro with_defaults(typ)
+macro defaults(typ)
     
     defaults = Dict()
     

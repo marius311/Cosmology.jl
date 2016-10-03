@@ -1,8 +1,8 @@
 """
 
-Provides a complex valued DAE (differential algebraic equation) solver based on
-Sundials' IDASOL, along with a macro `@eqs` to make writing the target function
-easier to read. 
+Provides a DAE (differential algebraic equation) solver, optionally with complex
+variables, based on Sundials' IDASOL, along with a macro `@eqs` to make writing
+the target function easier to read. 
 
 For example, to solve the system of equations:
 
