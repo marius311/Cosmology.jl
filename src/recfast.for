@@ -227,10 +227,11 @@ CH			Sept 2012 (fixed "fu" at low z to match modifications)
 C-
 C	===============================================================
 
-	subroutine get(in_OmegaB, in_OmegaC, in_OmegaL, in_HOinp, in_Tnow, in_Yp, in_Hswitch, in_Heswitch)
+	subroutine get_xe(in_OmegaB, in_OmegaC, in_OmegaL, in_HOinp, in_Tnow, in_Yp, in_Hswitch, in_Heswitch, in_Nz, in_zinitial, in_zfinal, out_xe)
 
-	real*8 in_OmegaB, in_OmegaC, in_OmegaL, in_HOinp, in_Tnow, in_Yp
-	integer in_Hswitch, in_Heswitch
+	real*8 in_OmegaB, in_OmegaC, in_OmegaL, in_HOinp, in_Tnow, in_Yp, in_zinitial, in_zfinal
+	integer in_Hswitch, in_Heswitch, in_Nz
+	real*8 out_xe(in_Nz)
 	
 C	--- Arguments
 	real*8 Trad,Tmat
@@ -321,28 +322,18 @@ C   Copy function argument parameters to common block data
 	OmegaL = in_OmegaL
 	HOinp = in_HOinp
 	Tnow = in_Tnow
- 	Yp = in_Yp
- 	Hswitch = in_Hswitch
+	Yp = in_Yp
+	Hswitch = in_Hswitch
 	Heswitch = in_Heswitch
+	Nz = in_Nz
+	zinitial = in_zinitial
+	zfinal = in_zfinal
 
 C	dimensions for integrator
 	Ndim = 3
 
-	write(*,*)'recfast version 1.5'
-	write(*,*)'Using Hummer''s case B recombination rates for H'
-	write(*,*)' with H fudge factor = 1.14 (or 1.125 plus high z fit),'
-	write(*,*)' b_He fudge factor = 0.86,'
-	write(*,*)' and a fit to tabulated HeII singlet recombination rates'
-	write(*,*)
 
-c	These are easy to inquire as input, but let's use simple values
-	zinitial = 1.d4
 	z = zinitial
-	zfinal=0.d0
-c	will output every 10 in z, but this is easily changed also
-
-	write(*,*)'Enter output file name'
-	read(*,'(a)')fileout
 
 	OmegaT=OmegaC+OmegaB            !total dark matter + baryons
 	OmegaK=1.d0-OmegaT-OmegaL	!curvature
@@ -410,16 +401,11 @@ c	Set initial matter temperature
 	y(1) = x_H0
 	y(2) = x_He0
 
-c	OK that's the initial conditions, now start writing output file
-
-	open(unit=7,status='new',form='formatted',file=fileout)
-	write(7,'(1x,''  z    '',1x,''     x_e   '')')
 
 	w0=1.d0/ dsqrt(1.d0 + zinitial)	!like a conformal time
 	w1=1.d0/ dsqrt(1.d0 + zfinal)
 	Lw0 = dLog(w0)
 	Lw1 = dLog(w1)
-	Nz=1000
 	hW=(Lw1-Lw0)/dfloat(Nz)		!interval in log of conf time
 
 c	Set up work-space stuff for DVERK
@@ -512,12 +498,10 @@ C He is 99% singly ionized, and *then* switch to joint H/He recombination.
 	  x_He = y(2)
 	  x = x0
 
-	  write(7,'(1x,f8.2,2x,g15.8)')
-	1	zend,x
+	  out_xe(i)=x
 
 	end do
 
-	stop
 	end
 
 C	===============================================================
