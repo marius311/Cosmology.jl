@@ -8,7 +8,8 @@ using SelfFunctions
 
 export new_params, Params, add_derived!,
        ργ, ρν, ρc, ρ_species, ρx_over_ωx,
-       Hubble, Θmc, Θs, D_prop, DA, rs, theta2hubble!, zstar_HS
+       Hubble, Θmc, Θs, D_prop, DA, rs, theta2hubble!, zstar_HS, 
+       τ, τd, zdrag, rdrag
 
 const sec = Units.sec
 const ρx_over_ωx = 3(100km/sec/Mpc)^2/(8π)
@@ -195,17 +196,17 @@ end
 end
 
 """Optical depth between two redshifts"""
-@self Params function τ(z1, z2)
-    σT*(ωb*ρx_over_ωx)/mH*(1-Yp) * quad(z->xe(z)/Hubble(z)*(1+z)^2, z1, z2)
+@self p::Params function τ(z1, z2)
+    σT*(ωb*ρx_over_ωx)/mH*(1-Yp) * quad(z->p.xe(z)/Hubble(z)*(1+z)^2, z1, z2)
 end
 
 """Optical depth to redshift z"""
 @self Params τ(z) = τ(xe, 0, z)
 
 """Baryon-drag optical depth between two redshifts"""
-@self Params function τd(z1, z2)
+@self p::Params function τd(z1, z2)
     Rovera = 3*ωb*ρx_over_ωx/(4*ργ₀)
-    σT*Rovera * quad(z->xe(z)/Hubble(z)*(1+z), z1, z2) # todo: check
+    σT*(ωb*ρx_over_ωx)/mH*(1-Yp)/Rovera * quad(z->p.xe(z)/Hubble(z)*(1+z)^3, z1, z2)
 end
 
 """Baryon-drag optical depth to a given redshift"""
