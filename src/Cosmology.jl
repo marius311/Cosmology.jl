@@ -1,7 +1,10 @@
 module Cosmology
 
-using SelfFunctions, TypeDefaults, Units, PhysicalConstants
+using TypeDefaults
+using Units
+using PhysicalConstants
 using PyCall
+using SelfFunctions
 
 export new_params, Params, add_derived!,
        ργ, ρν, ρc, ρ_species, ρx_over_ωx,
@@ -19,8 +22,7 @@ function __init__()
     global brentq = pyimport("scipy.optimize")[:brentq]
 end
 
-@defaults type Params{T<:AbstractFloat}
-    
+@defaults type Params{T<:Real}
     #primary parameters
     ωb::T = 0.0225
     ωc::T = 0.12
@@ -30,53 +32,80 @@ end
     mν::T = 0.06
     Ωk::T = 0
     Tcmb::T = 2.7255
-    Yp::T = 0
-    
+    Yp::T
     xe::Function
     
     #derived
-    ργ₀::T
-    ρc₀::T
     ρb₀::T
-    Tγ₀::T
-    h²::T
+    ρc₀::T
+    ρν₀::T
+    ργ₀::T
+    ρk₀::T
+    ρΛ₀::T
+
+    ων::T
+    ωγ::T
     ωk::T
     ωΛ::T
-    ων::T
+
+    Ωb::T
+    Ωc::T
+    Ων::T
+    Ωγ::T
+    ΩΛ::T
+    
+    Tγ₀::T
+    h²::T
     
     #accuracy
     reltol::T = 1e-4
 
 end
 
-
-
-Yp(primary) - 
-xe(Yp,primary) - recfast, cosmorec
-
-new_params(;kwargs...) = add_derived!(Params{Float64}(;kwargs...))
-
-@self Params get_Yp!() = @todo
-@self Params get_xe!() = @todo
+using Recfast
+using BBN
 
 
 @self Params function quad(f, xmin, xmax; kwargs...)
     quadgk(f, convert(Float64,xmin), convert(Float64,xmax); reltol=reltol, kwargs...)[1]::Float64
 end
 
-@self p::Params function add_derived!()
+@self Params function init_background!()
+    h² = (H0/100)^2
+    #photons
     Tγ₀ = (Tcmb*Kelvin)
     ργ₀ = (π²/15)*Tγ₀^4
-    ρc₀ = ωc*ρx_over_ωx
+    ωγ₀ = ργ₀/ρx_over_ωx
+    #baryons
     ρb₀ = ωb*ρx_over_ωx
-    h² = (H0/100)^2
-    ωk = Ωk*h²
+    Ωb = ωb/h²
+    #CDM
+    ρc₀ = ωc*ρx_over_ωx
+    Ωc = ωc/h²
+    #Neutrinos
     if mν == 0
         Nν_massless += Nν_massive
         Nν_massive = 0
     end
-    ων = ρν(0)/ρx_over_ωx
-    ωΛ = h² - ωk - ωb - ωc - ων - ργ₀/ρx_over_ωx
+    ρν₀ = ρν(0) 
+    ων = ρν₀/ρx_over_ωx
+    Ων = ων/h²
+    #Curvature
+    ωk = Ωk*h²
+    ρk₀ = ωk*ρx_over_ωx
+    #Dark energy
+    ΩΛ = 1 - Ωk - Ωb - Ωc - Ων - Ωγ
+    ωΛ = ΩΛ*h²
+    ρΛ₀ = ωΛ*ρx_over_ωx
+end
+
+
+
+function new_params(;kwargs...) 
+    p = Params{Float64}(;kwargs...)
+    init_background!(p)
+    init_bbn!(p)
+    init_reio!(p)
     p
 end
     
@@ -165,28 +194,28 @@ end
     quad(z′ -> 1/Hubble(z′)/sqrt(3*(1+Rovera/(1+z′))), z, Inf)
 end
 
-"""Optical depth between two redshifts given an ionization fraction history xe"""
-@self Params function τ(xe::Function, z1, z2)
+"""Optical depth between two redshifts"""
+@self Params function τ(z1, z2)
     σT*(ωb*ρx_over_ωx)/mH*(1-Yp) * quad(z->xe(z)/Hubble(z)*(1+z)^2, z1, z2)
 end
 
-"""Optical depth to redshift z given an ionization fraction history xe"""
-@self Params τ(xe::Function, z) = τ(xe(), 0, z)
+"""Optical depth to redshift z"""
+@self Params τ(z) = τ(xe, 0, z)
 
 """Baryon-drag optical depth between two redshifts"""
-@self Params function τd(xe::Function, z1, z2)
+@self Params function τd(z1, z2)
     Rovera = 3*ωb*ρx_over_ωx/(4*ργ₀)
     σT*Rovera * quad(z->xe(z)/Hubble(z)*(1+z), z1, z2) # todo: check
 end
 
 """Baryon-drag optical depth to a given redshift"""
-@self Params τd(xe::Function, z) = τd(xe, 0, z)
+@self Params τd(z) = τd(0, z)
 
-"""Baryon-drag reshift (i.e. where τd(z)==1)"""
-@self Params zdrag(xe::Function) = brentq(z->τd(xe,z)-1, 800, 1400)
+"""Baryon-drag reshift (i.e. z such that τd(z)==1)"""
+@self Params zdrag() = brentq(z->τd(z)-1, 800, 1400)
 
 """Comoving sound horizon at baryon-drag redshift"""
-@self Params rdrag(xe::Function) = rs(zdrag(xe))
+@self Params rdrag() = rs(zdrag())
 
 
 # -------------
