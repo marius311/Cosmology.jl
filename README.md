@@ -2,13 +2,13 @@
 
 *Note: this is a alpha software.*
 
-Cosmology.jl computes various cosmological quantities like angular diameter distances, (WIP:) matter power spectra, or (TODO:) the CMB anisotropy spectra.
+Cosmology.jl is a code written in [Julia](http://julialang.org/) to compute various cosmological quantities like angular diameter distances, (WIP:) matter power spectra, or (TODO:) the CMB anisotropy spectra.
 
 The field of Cosmology already has some pretty mature and widely used codes which perform these calculations, [CAMB](camb.info) and [CLASS](class-code.net). So why Cosmology.jl?
 
-* Cosmology.jl can be **faster**. Don't be fooled by the fact that Julia reads like Python, Julia is [JIT](https://en.wikipedia.org/wiki/Just-in-time_compilation) compiled to native code, so it can be just as fast as C or Fortran, or faster. For example, the current calculation of the angular diameter distance (which involves a nested integration over redshift and neutrino momenta) is **3x faster** than CAMB. This is encouraging and I see no reason more complex calculations can't have similar performance. 
+* Cosmology.jl can be **faster**. Don't be fooled by the fact that Julia reads like Python, Julia is [JIT](https://en.wikipedia.org/wiki/Just-in-time_compilation) compiled to native code, so it can be just as fast as C or Fortran, or faster. As a simple example where the codes perform essentially identical mathematical computations, the current calculation of the angular diameter distance is **5x faster** than CAMB. This is encouraging and I see no reason more complex calculations can't have similar performance. 
 
-* The code is far more **readable**. These calculations shouldn't be a black box only a few experts understand. Julia is *built* to write clear scientific code, (for example, the angular diameter distance calculation mentioned above is roughly 10x fewer lines of code than either CAMB or CLASS's, and still faster) Here's specifically some of what we make use of:
+* The code is far more **readable**. These calculations shouldn't be a black box only a few experts understand. Julia is *built* to write clear scientific code, (for example, the aforemention angular diameter distance calculation mentioned above is roughly **10x fewer lines of code** than either CAMB or CLASS's, and still faster) Here's specifically some of what we make use of:
 
     * **Unicode variable names**. Julia lets you use special characters in variable names. Cosmology.jl uses this a lot so that variable names immediately look like the equations we are all familiar with. Here's a snippet some simple code as an example,
     

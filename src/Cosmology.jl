@@ -67,8 +67,8 @@ using Recfast
 using BBN
 
 
-@self Params function quad(f, xmin, xmax; kwargs...)
-    quadgk(f, convert(Float64,xmin), convert(Float64,xmax); reltol=reltol, kwargs...)[1]::Float64
+@self Params function quad(f, xmin, xmax)
+    quadgk(f, convert(Float64,xmin), convert(Float64,xmax); reltol=reltol)[1]::Float64
 end
 
 @self Params function init_background!()
@@ -143,7 +143,7 @@ end
     Tν = Tγ₀*(4/11)^(1/3)
     mT² = (m/(Tν/a′))^2
     integrand(p) = p^2*sqrt((p*(a′/a))^2+mT²)/(exp(sqrt(p^2+mT²))+1)
-    1/π² * (Tν/a′)^4 * (a′/a)^3 * quad(integrand,0,Inf)
+    (1/π² * (Tν/a′)^4 * (a′/a)^3 * quad(integrand,0,Inf))::Float64 #todo: why is this type unstable? 
 end
 
 # ----
