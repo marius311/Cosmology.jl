@@ -1,16 +1,15 @@
 module Recfast
 
+include("../deps/deps.jl")
 using Cosmology, SelfFunctions, Interpolations
 
 export init_reio!
 
-push!(Base.Libdl.DL_LOAD_PATH,dirname(Base.source_path()))
-
 
 @self Params function init_reio!()
-    zdat, xedat = get_xe(Ωb, Ωc, ΩΛ, H0, Tcmb, Yp; Nz=10000)
-    itp = interpolate((reverse!(zdat),),reverse!(xedat),Gridded(Linear())) #TODO: cubic interp so we can lower Nz
-    xe = (z::Float64) -> itp[z]
+    z, xedat = get_xe(Ωb, Ωc, ΩΛ, H0, Tcmb, Yp)
+    itp = scale(interpolate(reverse(xedat), BSpline(Cubic(Flat())), OnGrid()), z[end]:(z[1]-z[2]):z[1])
+    xe = (z::Float64)->itp[z]
 end
 
 
@@ -31,7 +30,7 @@ function get_xe(OmegaB::Float64, OmegaC::Float64, OmegaL::Float64,
             
     xe = Array{Float64}(Nz)
     ccall( 
-        (:get_xe_, "recfast"), Void, 
+        (:get_xe_, librecfast), Void, 
         (Ref{Float64}, Ref{Float64}, Ref{Float64}, Ref{Float64}, Ref{Float64}, Ref{Float64}, 
          Ref{Int64}, Ref{Int64}, Ref{Int64}, Ref{Float64}, Ref{Float64}, Ref{Float64}),
         OmegaB, OmegaC, OmegaL, HOinp, Tnow, Yp, Hswitch, Heswitch, Nz, zstart, zend, xe

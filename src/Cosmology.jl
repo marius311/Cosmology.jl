@@ -209,7 +209,7 @@ end
     σT*(ωb*ρx_over_ωx)/mH*(1-Yp)/Rovera * quad(z->p.xe(z)/Hubble(z)*(1+z)^3, z1, z2)
 end
 
-"""Baryon-drag optical depth to a given redshift"""
+"""Baryon-drag optical depth to redshift z"""
 @self Params τd(z) = τd(0, z)
 
 """Baryon-drag reshift (i.e. z such that τd(z)==1)"""
