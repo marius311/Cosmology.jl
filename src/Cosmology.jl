@@ -196,17 +196,17 @@ end
 end
 
 """Optical depth between two redshifts"""
-@self p::Params function τ(z1, z2)
-    σT*(ωb*ρx_over_ωx)/mH*(1-Yp) * quad(z->p.xe(z)/Hubble(z)*(1+z)^2, z1, z2)
+@self Params function τ(z1, z2)
+    σT*(ωb*ρx_over_ωx)/mH*(1-Yp) * quad(z->xe(z)/Hubble(z)*(1+z)^2, z1, z2)
 end
 
 """Optical depth to redshift z"""
 @self Params τ(z) = τ(xe, 0, z)
 
 """Baryon-drag optical depth between two redshifts"""
-@self p::Params function τd(z1, z2)
+@self Params function τd(z1, z2)
     Rovera = 3*ωb*ρx_over_ωx/(4*ργ₀)
-    σT*(ωb*ρx_over_ωx)/mH*(1-Yp)/Rovera * quad(z->p.xe(z)/Hubble(z)*(1+z)^3, z1, z2)
+    σT*(ωb*ρx_over_ωx)/mH*(1-Yp)/Rovera * quad(z->xe(z)/Hubble(z)*(1+z)^3, z1, z2)
 end
 
 """Baryon-drag optical depth to redshift z"""
