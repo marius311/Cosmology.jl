@@ -1,21 +1,30 @@
 module Cosmology
 
-using TypeDefaults
-using Units
-using PhysicalConstants
+using DelimitedFiles
+using Dierckx
+using Interpolations
+using Libdl
+using MacroTools: splitdef, combinedef, postwalk, isexpr, @capture, isdef, splitarg
+using Parameters
 using PyCall
-using SelfFunctions
+using QuadGK
+
 
 export new_params, Params, add_derived!,
        ργ, ρν, ρc, ρ_species, ρx_over_ωx,
        Hubble, Θmc, Θs, D_prop, DA, rs, theta2hubble!, zstar_HS, 
        τ, τd, zdrag, rdrag
 
-const sec = Units.sec
-const ρx_over_ωx = 3(100km/sec/Mpc)^2/(8π)
+
+include("Units.jl")
+include("SelfFunctions.jl")
+include("TypeDefaults.jl")
+
+
+const ρx_over_ωx = 3(100km/second/Mpc)^2/(8π)
 const nfac = 7/8*(4/11)^(4/3)
 const π² = π^2
-const H0units = km/sec/Mpc
+const H0units = km/second/Mpc
 const Hfac = sqrt(8π/3)
 
 
@@ -23,7 +32,7 @@ function __init__()
     global brentq = pyimport("scipy.optimize")[:brentq]
 end
 
-@defaults type Params{T<:Real}
+@defaults mutable struct Params{T<:Real}
     #primary parameters
     ωb::T = 0.0225
     ωc::T = 0.12
@@ -37,24 +46,9 @@ end
     xe::Function
     
     #derived
-    ρb₀::T
-    ρc₀::T
-    ρν₀::T
-    ργ₀::T
-    ρk₀::T
-    ρΛ₀::T
-
-    ων::T
-    ωγ::T
-    ωk::T
-    ωΛ::T
-
-    Ωb::T
-    Ωc::T
-    Ων::T
-    Ωγ::T
-    ΩΛ::T
-    
+    ρb₀::T; ρc₀::T; ρν₀::T; ργ₀::T; ρk₀::T; ρΛ₀::T
+    ων::T; ωγ::T; ωk::T; ωΛ::T
+    Ωb::T; Ωc::T; Ων::T; Ωγ::T; ΩΛ::T
     Tγ₀::T
     h²::T
     
@@ -63,12 +57,13 @@ end
 
 end
 
-using Recfast
-using BBN
+
+include("BBN.jl")
+include("Recfast.jl")
 
 
 @self Params function quad(f, xmin, xmax)
-    quadgk(f, convert(Float64,xmin), convert(Float64,xmax); reltol=reltol)[1]::Float64
+    quadgk(f, convert(Float64,xmin), convert(Float64,xmax); rtol=reltol)[1]::Float64
 end
 
 @self Params function init_background!()
@@ -102,10 +97,10 @@ end
 
 
 
-function new_params(;kwargs...) 
-    p = Params{Float64}(;kwargs...)
+function new_params(T=Float64;kwargs...)
+    p = Params{T}(;kwargs...)
     init_background!(p)
-    init_bbn!(p)
+    # init_bbn!(p)
     init_reio!(p)
     p
 end
@@ -179,7 +174,7 @@ approximations which we don't use here.
 """Comoving angular-diameter distance to redshift z."""
 @self Params function DA(z)
     d = dist(z)
-    K = -ωk*(100km/sec)^2
+    K = -ωk*(100km/second)^2
     if K==0
         d
     elseif K<0 

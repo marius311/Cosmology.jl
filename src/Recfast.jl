@@ -1,9 +1,4 @@
-module Recfast
-
 include("../deps/deps.jl")
-using Cosmology, SelfFunctions, Interpolations
-
-export init_reio!
 
 
 @self Params function init_reio!()
@@ -13,7 +8,7 @@ export init_reio!
 end
 
 
-doc"""
+"""
     get_xe(OmegaB::Float64, OmegaC::Float64, OmegaL::Float64, 
            HOinp::Float64, Tnow::Float64, Yp::Float64, 
            Hswitch::Int64=1, Heswitch::Int64=6, 
@@ -30,13 +25,10 @@ function get_xe(OmegaB::Float64, OmegaC::Float64, OmegaL::Float64,
             
     xe = Array{Float64}(Nz)
     ccall( 
-        (:get_xe_, librecfast), Void, 
+        (:get_xe_, librecfast), Nothing, 
         (Ref{Float64}, Ref{Float64}, Ref{Float64}, Ref{Float64}, Ref{Float64}, Ref{Float64}, 
          Ref{Int64}, Ref{Int64}, Ref{Int64}, Ref{Float64}, Ref{Float64}, Ref{Float64}),
         OmegaB, OmegaC, OmegaL, HOinp, Tnow, Yp, Hswitch, Heswitch, Nz, zstart, zend, xe
     )
     collect(linspace(zstart,zend,Nz+1))[2:end], xe
-end
-
-
 end

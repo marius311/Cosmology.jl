@@ -1,6 +1,5 @@
 module Mpk
 
-using With
 using Cosmology: Hubble, Params, ργ, ρν, η, ρc, ρb
 using ODESolve: @eqs, odesolve
 using PhysicalConstants: mp, σT
@@ -8,7 +7,7 @@ using NamedArrays
 
 export solve_boltz
 
-@with Params function solve_boltz(ks::Array, zs::Array)
+@self Params function solve_boltz(ks::Array, zs::Array)
 
     function F(k, lna, y, dy_dlna)
 

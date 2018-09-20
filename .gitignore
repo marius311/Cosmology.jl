@@ -1,4 +1,6 @@
 deps/usr
 deps/deps.jl
+deps/build.log
 .tags
 .vscode
+nb
