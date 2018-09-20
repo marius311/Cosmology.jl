@@ -10,6 +10,8 @@ Requirements:
 Installation,
 
 ```julia
+pkg> add https://github.com/marius311/SelfFunctions.jl
+pkg> add https://github.com/marius311/TypeDefaults.jl
 pkg> add https://github.com/marius311/Cosmology.jl
 ```
 
