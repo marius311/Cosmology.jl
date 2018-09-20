@@ -1,5 +1,3 @@
-module PhysicalConstants
-
 export σT, mH, mHe, mp
 
 """Thomson scattering cross section"""
@@ -13,5 +11,3 @@ const mHe = 3.0538317277758185e-19
 
 """Mass of the proton"""
 const mp = 7.685126339343148e-20
-
-end

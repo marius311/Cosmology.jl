@@ -2,23 +2,22 @@ module Cosmology
 
 using DelimitedFiles
 using Dierckx
-using Interpolations
 using Libdl
-using MacroTools: splitdef, combinedef, postwalk, isexpr, @capture, isdef, splitarg
 using Parameters
 using PyCall
 using QuadGK
+using SelfFunctions
+using TypeDefaults
 
 
 export new_params, Params, add_derived!,
        ργ, ρν, ρc, ρ_species, ρx_over_ωx,
        Hubble, Θmc, Θs, D_prop, DA, rs, theta2hubble!, zstar_HS, 
-       τ, τd, zdrag, rdrag
+       τ, τd, zdrag, rdrag, @self
 
 
 include("Units.jl")
-include("SelfFunctions.jl")
-include("TypeDefaults.jl")
+include("PhysicalConstants.jl")
 
 
 const ρx_over_ωx = 3(100km/second/Mpc)^2/(8π)
@@ -100,7 +99,7 @@ end
 function new_params(T=Float64;kwargs...)
     p = Params{T}(;kwargs...)
     init_background!(p)
-    # init_bbn!(p)
+    init_bbn!(p)
     init_reio!(p)
     p
 end
@@ -200,8 +199,8 @@ end
 
 """Baryon-drag optical depth between two redshifts"""
 @self Params function τd(z1, z2)
-    Rovera = 3*ωb*ρx_over_ωx/(4*ργ₀)
-    σT*(ωb*ρx_over_ωx)/mH*(1-Yp)/Rovera * quad(z->xe(z)/Hubble(z)*(1+z)^3, z1, z2)
+    R_div_a = 3ρb₀/4ργ₀
+    σT*3ρb₀/mH*(1-Yp)/R_div_a * quad(z->xe(z)/Hubble(z)*(1+z)^3, z1, z2)
 end
 
 """Baryon-drag optical depth to redshift z"""
