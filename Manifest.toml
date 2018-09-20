@@ -130,7 +130,9 @@ uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 
 [[SelfFunctions]]
 deps = ["MacroTools"]
-path = "/home/marius/workspace/SelfFunctions.jl"
+git-tree-sha1 = "28c8a9c9020fcd6ee6d4bf7e3d2769ac3c86ea38"
+repo-rev = "master"
+repo-url = "https://github.com/marius311/SelfFunctions.jl.git"
 uuid = "72ba9e92-bcf5-11e8-095f-37966c5d5655"
 version = "0.1.0"
 
@@ -158,7 +160,9 @@ uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[TypeDefaults]]
 deps = ["MacroTools"]
-path = "/home/marius/workspace/TypeDefaults.jl"
+git-tree-sha1 = "3a2c043005c371e78345af5c15fba73d4b75633a"
+repo-rev = "master"
+repo-url = "https://github.com/marius311/TypeDefaults.jl.git"
 uuid = "7b3290e8-bcf5-11e8-0f75-4f6674ef3276"
 version = "0.1.0"
 
