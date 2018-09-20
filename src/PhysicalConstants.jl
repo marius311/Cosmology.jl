@@ -11,3 +11,10 @@ const mHe = 3.0538317277758185e-19
 
 """Mass of the proton"""
 const mp = 7.685126339343148e-20
+
+
+const ρx_over_ωx = 3(100km/second/Mpc)^2/(8π)
+const nfac = 7/8*(4/11)^(4/3)
+const π² = π^2
+const H0units = km/second/Mpc
+const Hfac = sqrt(8π/3)

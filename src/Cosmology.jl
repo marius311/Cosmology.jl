@@ -19,14 +19,6 @@ export new_params, Params, add_derived!,
 include("Units.jl")
 include("PhysicalConstants.jl")
 
-
-const ρx_over_ωx = 3(100km/second/Mpc)^2/(8π)
-const nfac = 7/8*(4/11)^(4/3)
-const π² = π^2
-const H0units = km/second/Mpc
-const Hfac = sqrt(8π/3)
-
-
 function __init__()
     global brentq = pyimport("scipy.optimize")[:brentq]
 end
