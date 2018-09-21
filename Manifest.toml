@@ -19,12 +19,6 @@ git-tree-sha1 = "ae262fa91da6a74e8937add6b613f58cd56cdad4"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
 version = "1.1.0"
 
-[[Conda]]
-deps = ["Compat", "JSON", "VersionParsing"]
-git-tree-sha1 = "a47f9a2c7b80095e6a935536795635522fe27f5d"
-uuid = "8f4d0f93-b110-5947-807f-2305c1781a2d"
-version = "1.0.1"
-
 [[DataStructures]]
 deps = ["InteractiveUtils", "REPL", "Random", "Serialization", "Test"]
 git-tree-sha1 = "5162c360c52e9265e0bfafb71415c31f746f7e04"
@@ -52,12 +46,6 @@ uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 [[InteractiveUtils]]
 deps = ["LinearAlgebra", "Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
-
-[[JSON]]
-deps = ["Dates", "Distributed", "Mmap", "Pkg", "Sockets", "Test", "Unicode"]
-git-tree-sha1 = "fec8e4d433072731466d37ed0061b3ba7f70eeb9"
-uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
-version = "0.19.0"
 
 [[LibGit2]]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
@@ -105,12 +93,6 @@ uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
-[[PyCall]]
-deps = ["Compat", "Conda", "MacroTools", "Statistics", "VersionParsing"]
-git-tree-sha1 = "f56428481fd0caf01cc8ecd2a0892fdaf8fddd50"
-uuid = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
-version = "1.18.4"
-
 [[QuadGK]]
 deps = ["DataStructures", "LinearAlgebra", "Test"]
 git-tree-sha1 = "7e8dff9c205f36eceaf6e62a43ff851637ca45fc"
@@ -132,7 +114,7 @@ uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 deps = ["MacroTools"]
 git-tree-sha1 = "28c8a9c9020fcd6ee6d4bf7e3d2769ac3c86ea38"
 repo-rev = "master"
-repo-url = "https://github.com/marius311/SelfFunctions.jl.git"
+repo-url = "https://github.com/marius311/SelfFunctions.jl"
 uuid = "72ba9e92-bcf5-11e8-095f-37966c5d5655"
 version = "0.1.0"
 
@@ -162,7 +144,7 @@ uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 deps = ["MacroTools"]
 git-tree-sha1 = "3a2c043005c371e78345af5c15fba73d4b75633a"
 repo-rev = "master"
-repo-url = "https://github.com/marius311/TypeDefaults.jl.git"
+repo-url = "https://github.com/marius311/TypeDefaults.jl"
 uuid = "7b3290e8-bcf5-11e8-0f75-4f6674ef3276"
 version = "0.1.0"
 
@@ -178,9 +160,3 @@ uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [[Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
-
-[[VersionParsing]]
-deps = ["Compat"]
-git-tree-sha1 = "c9d5aa108588b978bd859554660c8a5c4f2f7669"
-uuid = "81def892-9a0e-5fdd-b105-ffc91e053289"
-version = "1.1.2"

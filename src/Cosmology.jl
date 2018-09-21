@@ -4,7 +4,6 @@ using DelimitedFiles
 using Dierckx
 using Libdl
 using Parameters
-using PyCall
 using QuadGK
 using SelfFunctions
 using TypeDefaults
@@ -18,10 +17,8 @@ export new_params, Params, add_derived!,
 
 include("Units.jl")
 include("PhysicalConstants.jl")
+include("NumericalAlgs.jl")
 
-function __init__()
-    global brentq = pyimport("scipy.optimize")[:brentq]
-end
 
 @defaults mutable struct Params{T<:Real}
     #primary parameters
@@ -53,8 +50,12 @@ include("BBN.jl")
 include("Recfast.jl")
 
 
-@self Params function quad(f, xmin, xmax)
-    quadgk(f, convert(Float64,xmin), convert(Float64,xmax); rtol=reltol)[1]::Float64
+@self Params{T} function quad(f, xmin, xmax) where {T}
+    quadgk(f, convert(T,xmin), convert(T,xmax); rtol=reltol)[1]::T
+end
+
+@self Params{T} function fzero(f, xmin, xmax) where {T}
+    brentq(f, convert(T,xmin), convert(T,xmax))
 end
 
 @self Params function init_background!()
@@ -199,7 +200,7 @@ end
 @self Params τd(z) = τd(0, z)
 
 """Baryon-drag reshift (i.e. z such that τd(z)==1)"""
-@self Params zdrag() = brentq(z->τd(z)-1, 800, 1400)
+@self Params zdrag() = fzero(z->τd(z)-1, 800, 1400)
 
 """Comoving sound horizon at baryon-drag redshift"""
 @self Params rdrag() = rs(zdrag())
@@ -210,7 +211,7 @@ end
 # -------------
 
 """Set Θmc (by adjusting H0 accordingly). Returns H0."""
-@self Params theta2hubble!(Θ) = brentq((H0′->(H0=H0′; add_derived!(); Θmc()-Θ)), 20, 200, rtol=reltol)
+@self Params theta2hubble!(Θ) = fzero((H0′->(H0=H0′; add_derived!(); Θmc()-Θ)), 20, 200)
 
 """Redshift at decoupling using fitting formula from Hu & Sugiyama """
 @self Params zstar_HS() = 1048*(1+0.00124*ωb^(-0.738))*(1+(0.0783*ωb^(-0.238)/(1+39.5*ωb^0.763))*(ωb+ωc+ων)^(0.560/(1+21.1*ωb^1.81)))
