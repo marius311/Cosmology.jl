@@ -7,15 +7,13 @@ Cosmology.jl is a code written in [Julia](http://julialang.org/) to compute vari
 Requirements:
 * Julia 0.7 or higher
 
-Installation,
+Installation (from the package prompt):
 
 ```julia
-pkg> add https://github.com/marius311/SelfFunctions.jl
-pkg> add https://github.com/marius311/TypeDefaults.jl
-pkg> add https://github.com/marius311/Cosmology.jl
+add https://github.com/marius311/SelfFunctions.jl https://github.com/marius311/TypeDefaults.jl https://github.com/marius311/Cosmology.jl
 ```
 
-Example, 
+Example:
 
 ```julia
 julia> using Cosmology

@@ -9,13 +9,7 @@ end
 
 
 """
-    get_xe(OmegaB::Float64, OmegaC::Float64, OmegaL::Float64, 
-           HOinp::Float64, Tnow::Float64, Yp::Float64, 
-           Hswitch::Int64=1, Heswitch::Int64=6, 
-           Nz::Int64=1000, zstart::Float64=10000., zend::Float64=0.)
-           
 Wrapper of RECFAST Fortran code with parameters as defined in that code.         
-
 Returns tuple of (z's, xe's)
 """
 function get_xe(OmegaB::Float64, OmegaC::Float64, OmegaL::Float64, 
