@@ -23,7 +23,7 @@ julia> using Cosmology
 julia> p = new_params(H0=67, ωb=0.0225, ωc=0.12, mν=0.06eV, Nν_massive=1, Nν_massless=2.046, reltol=1e-4);
 
 julia> rs(p,zdrag(p))/Mpc # sound horizon at baryon drag redshift
-144.16
+146.94167579179634
 
 # etc..
 ```
