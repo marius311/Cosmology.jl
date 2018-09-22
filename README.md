@@ -83,16 +83,16 @@ The field of Cosmology already has some pretty mature and widely used codes whic
     * **@self macro** These calculations involve lots of parameters, usually stored in some kind of parameter type, call it `params`. We use a macro `@self` that lets us omit having to write `params.X` every time we need to access parameter `X`, or having to pass `params` around to sub-functions. Its not a huge deal, but does make code a lot less cluttered. For example, instead of this,
     
         ```julia
-        function H0(params,z)
-            return 8π/3*sqrt(params.ργ₀*(1+z)^4 + params.ρm₀*(1+z)^4 + ρν(params,z) + params.ρΛ)
+        function Hubble(params,z)
+            √(8π/3*(params.ργ₀*(1+z)^4 + params.ρm₀*(1+z)^3 + ρν(params,z) + params.ρΛ))
         end
         ``` 
         
         we have this,
         
         ```julia
-        @self Params function H0(z)
-            return 8π/3*sqrt(ργ₀*(1+z)^4 + ρm₀*(1+z)^4 + ρν(z) + ρΛ)
+        @self Params function Hubble(z)
+            √(8π/3*(ργ₀*(1+z)^4 + ρm₀*(1+z)^3 + ρν(z) + ρΛ))
         end
         ```
         
