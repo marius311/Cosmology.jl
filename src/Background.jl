@@ -8,7 +8,7 @@
 @self Params ργ(z) = ργ₀*(1+z)^4
 
 """Energy density in neutrinos at redshift z"""
-@self Params function ρν(z) 
+@self Params ρν(z) = begin
     ρν = Nν_massless*(7/8*(4/11)^(4/3))*ργ₀*(1+z)^4
     if mν != 0
         ρν += Nν_massive*ρ_species(z,mν/Nν_massive)
@@ -23,7 +23,7 @@ end
 @self Params ρb(z) = ρb₀*(1+z)^3
     
 """Energy density at scale factor a in a thermal species with mass m and 2 d.o.f."""
-@self Params function ρ_species(z, m)
+@self Params ρ_species(z, m) = begin
     a = 1/(1+z)
     a′ = 1e-7
     Tν = Tγ₀*(4/11)^(1/3)
@@ -40,7 +40,7 @@ end
 # ------------------------------------
 
 """Hubble constant at redshift z"""
-@self Params Hubble(z) = √(8π/3)*√(ρx_over_ωx*((ωc+ωb)*(1+z)^3 + ωk*(1+z)^2 + ωΛ) + ργ(z) + ρν(z))
+@self Params Hubble(z) = √((8π/3)*(ρx_over_ωx*((ωc+ωb)*(1+z)^3 + ωk*(1+z)^2 + ωΛ) + ργ(z) + ρν(z)))
 
 """
 Θs at the decoupling redshift calculated from zstar_HS. 
