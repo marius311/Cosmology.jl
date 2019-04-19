@@ -1,19 +1,20 @@
 module Cosmology
 
+import Roots
+using Base: @kwdef
 using DelimitedFiles
 using Dierckx
 using Libdl
 using Parameters
 using QuadGK
-import Roots
 using SelfFunctions
-using TypeDefaults
 
 
 export new_params, Params, add_derived!,
-       ργ, ρν, ρc, ρ_species, ρx_over_ωx,
-       Hubble, Θmc, Θs, D_prop, DA, rs, rd, theta2hubble!, zstar_HS, 
-       τ, τd, zdrag, rdrag, @self
+       ργ, ρν, ρc, ρb, ρ_species, ρx_over_ωx,
+       Hubble, Θmc, Θs, D_prop, DA, rs, rd, theta2hubble!, zstar_HS, zstar,
+       τ, τd, zdrag, rdrag, @self,
+       rs_vis, rd_vis
 
 
 include("Units.jl")

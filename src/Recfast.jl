@@ -1,6 +1,5 @@
 include("../deps/deps.jl")
 
-
 @self Params function init_reio!()
     z, xedat = get_xe(Ωb, Ωc, ΩΛ, H0, Tcmb, Yp)
     itp = Spline1D(reverse(z), reverse(xedat))

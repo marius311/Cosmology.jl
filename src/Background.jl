@@ -7,11 +7,14 @@
 """Energy density in photons at redshift z"""
 @self Params ργ(z) = ργ₀*(1+z)^4
 
+"""Energy density in photons at redshift z"""
+@self Params ρΛ(z) = ρΛ₀*(1+z)^(3*(1+w(z)))
+
 """Energy density in neutrinos at redshift z"""
 @self Params function ρν(z) 
     ρν = Nν_massless*(7/8*(4/11)^(4/3))*ργ₀*(1+z)^4
     if mν != 0
-        ρν += Nν_massive*ρ_species(z,mν/Nν_massive)
+        ρν += Nν_massive*ρ_species(z,mν)
     end
     ρν
 end
@@ -40,7 +43,7 @@ end
 # ------------------------------------
 
 """Hubble constant at redshift z"""
-@self Params Hubble(z) = √(8π/3)*√(ρx_over_ωx*((ωc+ωb)*(1+z)^3 + ωk*(1+z)^2 + ωΛ) + ργ(z) + ρν(z))
+@self Params Hubble(z) = √(8π/3)*√(ρk₀*(1+z)^2 + ρb(z) + ρc(z) + ρΛ(z) + ργ(z) + ρν(z) + ρextra(z))
 
 """
 Θs at the decoupling redshift calculated from zstar_HS. 
@@ -87,20 +90,32 @@ end
 """Comoving sound horizon at redshift z"""
 @self Params rs(z) = integrate(z->ⅆrs_ⅆz(z), z, Inf)
 
+"""Comoving sound horizon integrated over the visibility function"""
+@self Params rs_vis() = integrate(z -> ⅆτ_ⅆz(z) * exp(-τ(z)) * rs(z), 0, Inf)
+
 """Derivative of square diffusion damping scale at redshift z"""
 @self Params ⅆrd²_ⅆz(z) = begin
     R = 3ρb₀/(4ργ₀*(1+z))
-    π^2/(σT*ρb₀/mH*(1-Yp)*xe(z)*Hubble(z)*(1+z)^2) * (R^2 + 16/15*(1+R))/(6*(1+R^2))
+    π^2/(σT*ρb₀/mH*(1-Yp)*xe(z)*Hubble(z)*(1+z)^2) * (R^2 + 16/15*(1+R))/(6*(1+R)^2)
 end
 
 """Diffusion damping scale at redshift z"""
 @self Params rd(z) = √(integrate(z->ⅆrd²_ⅆz(z), z, Inf))
 
+"""Comoving damping scale integrated over the visibility function."""
+@self Params rd_vis(r) = r*√(-log(integrate(z -> ⅆτ_ⅆz(z) * exp(-τ(z)) * exp(-(rd(z)/r)^2), 0, 1e4)))
+
 """Optical depth between two redshifts"""
-@self Params τ(z1, z2) = σT*ρb₀/mH*(1-Yp) * integrate(z->xe(z)/Hubble(z)*(1+z)^2, z1, z2)
+@self Params ⅆτ_ⅆz(z) =  σT*ρb₀/mH*(1-Yp) * xe(z)/Hubble(z)*(1+z)^2
+
+"""Optical depth between two redshifts"""
+@self Params τ(z1, z2) = integrate(z->ⅆτ_ⅆz(z), z1, z2)
 
 """Optical depth to redshift z"""
-@self Params τ(z) = τ(xe, 0, z)
+@self Params τ(z) = τ(0, z)
+
+"""Recombination redshift (i.e. z such that τ(z)==1)"""
+@self Params zstar() = find_zero(z->τ(z)-1, 800, 1400)
 
 """Baryon-drag optical depth between two redshifts"""
 @self Params τdrag(z1, z2) = begin

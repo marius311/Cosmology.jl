@@ -1,22 +1,24 @@
-@defaults mutable struct Params{T<:Real}
+@kwdef struct Params{T<:Real,Fxe,Fw,Fρextra}
     #primary parameters
     ωb::T = 0.0225
     ωc::T = 0.12
-    H0::T = 67
-    Nν_massive::T = 1
+    H0::T = 67.0
+    Nν_massive::T = 1.0
     Nν_massless::T = 2.046
     mν::T = 0.06
-    Ωk::T = 0
+    Ωk::T = 0.0
     Tcmb::T = 2.7255
-    Yp::T
-    xe::Function
+    Yp::T = NaN
+    xe::Fxe = nothing
+    w::Fw = (z->-1)
+    ρextra::Fρextra = (z->0)
     
     #derived
-    ρb₀::T; ρc₀::T; ρν₀::T; ργ₀::T; ρk₀::T; ρΛ₀::T
-    ων::T; ωγ::T; ωk::T; ωΛ::T
-    Ωb::T; Ωc::T; Ων::T; Ωγ::T; ΩΛ::T
-    Tγ₀::T
-    h²::T
+    ρb₀::T=NaN; ρc₀::T=NaN; ρν₀::T=NaN; ργ₀::T=NaN; ρk₀::T=NaN; ρΛ₀::T=NaN
+    ων::T=NaN; ωγ::T=NaN; ωk::T=NaN; ωΛ::T=NaN
+    Ωb::T=NaN; Ωc::T=NaN; Ων::T=NaN; Ωγ::T=NaN; ΩΛ::T=NaN
+    Tγ₀::T=NaN
+    h²::T=NaN
     
     #accuracy
     reltol::T = 1e-4
@@ -31,7 +33,8 @@ Broadcast.broadcastable(p::Params) = Ref(p)
     #photons
     Tγ₀ = (Tcmb*Kelvin)
     ργ₀ = (π²/15)*Tγ₀^4
-    ωγ₀ = ργ₀/ρx_over_ωx
+    ωγ = ργ₀/ρx_over_ωx
+    Ωγ = ωγ/h²
     #baryons
     ρb₀ = ωb*ρx_over_ωx
     Ωb = ωb/h²
@@ -43,7 +46,7 @@ Broadcast.broadcastable(p::Params) = Ref(p)
         Nν_massless += Nν_massive
         Nν_massive = 0
     end
-    ρν₀ = ρν(0) 
+    ρν₀ = ρν(0)
     ων = ρν₀/ρx_over_ωx
     Ων = ων/h²
     #Curvature
@@ -58,10 +61,10 @@ end
 
 
 function new_params(T=Float64;kwargs...)
-    p = Params{T}(;kwargs...)
-    init_background!(p)
-    init_bbn!(p)
-    init_reio!(p)
+    p = Params(;kwargs...)
+    p = init_background!(p)
+    p = init_bbn!(p)
+    p = init_reio!(p)
     p
 end
     
