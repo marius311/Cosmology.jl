@@ -14,7 +14,8 @@ export new_params, Params, add_derived!,
        ργ, ρν, ρc, ρb, ρ_species, ρx_over_ωx,
        Hubble, Θmc, Θs, D_prop, DA, rs, rd, theta2hubble!, zstar_HS, zstar,
        τ, τd, zdrag, rdrag, @self,
-       rs_vis, rd_vis
+       rs_vis, rd_vis, 
+       ⅆrs_ⅆz, ⅆrd²_ⅆz, ⅆτ_ⅆz
 
 
 include("Units.jl")
