@@ -11,7 +11,7 @@
 @self Params ρΛ(z) = ρΛ₀*(1+z)^(3*(1+w(z)))
 
 """Energy density in neutrinos at redshift z"""
-@self Params function ρν(z) 
+@self Params ρν(z) = begin
     ρν = Nν_massless*(7/8*(4/11)^(4/3))*ργ₀*(1+z)^4
     if mν != 0
         ρν += Nν_massive*ρ_species(z,mν)
@@ -26,7 +26,7 @@ end
 @self Params ρb(z) = ρb₀*(1+z)^3
     
 """Energy density at scale factor a in a thermal species with mass m and 2 d.o.f."""
-@self Params function ρ_species(z, m)
+@self Params ρ_species(z, m) = begin
     a = 1/(1+z)
     a′ = 1e-7
     Tν = Tγ₀*(4/11)^(1/3)
