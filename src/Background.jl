@@ -10,32 +10,39 @@
 """Energy density in photons at redshift z"""
 @self Params ρΛ(z) = ρΛ₀*(1+z)^(3*(1+w(z)))
 
-"""Energy density in neutrinos at redshift z"""
-@self Params ρν(z) = begin
-    ρν = Nν_massless*(7/8*(4/11)^(4/3))*ργ₀*(1+z)^4
-    if mν != 0
-        ρν += Nν_massive*ρ_species(z,mν)
-    end
-    ρν
-end
-
 """Energy density in cold dark matter at redshift """
 @self Params ρc(z) = ρc₀*(1+z)^3
 
 """Energy density in cold dark matter at redshift z"""
 @self Params ρb(z) = ρb₀*(1+z)^3
-    
-"""Energy density at scale factor a in a thermal species with mass m and 2 d.o.f."""
-@self Params ρ_species(z, m) = begin
-    a = 1/(1+z)
-    a′ = 1e-7
-    Tν = Tγ₀*(4/11)^(1/3)
-    mT² = (m/(Tν/a′))^2
-    integrand(p) = p^2*√((p*(a′/a))^2+mT²)/(exp(√(p^2+mT²))+1)
-    (1/π² * (Tν/a′)^4 * (a′/a)^3 * integrate(integrand,0,Inf))
+
+"""Energy density in massless+massive neutrinos at redshift z"""
+@self Params ρν(z) = ρνmassless(z) + ρνmassive(z)
+
+"""Energy density in massless neutrinos at redshift z"""
+@self Params ρνmassless(z) = Nν_massless*(7/8*(4/11)^(4/3))*ργ₀*(1+z)^4
+
+"""Energy density in massive neutrinos at redshift z"""
+@self Params ρνmassive(z) = begin
+    if mν==0
+        0
+    else
+        a = 1/(1+z)
+        a′ = 1e-7
+        Tν = Tγ₀*(4/11)^(1/3)
+        mT² = (mν/(Tν/a′))^2
+        integrand(p) = p^2*√((p*(a′/a))^2+mT²)/(exp(√(p^2+mT²))+1)
+        (Nν_massive * 1/π² * (Tν/a′)^4 * (a′/a)^3 * integrate(integrand,0,Inf))
+    end
+end
+
+precompute_ρνmassive(p::Params, z = 10 .^ range(-3,10,length=128)) = begin
+    spl = Spline1D(log.(z), log.(ρνmassive.(p,z)))
+    @set p.ρνmassive = z -> exp(spl(log(z)))
 end
 
 # ----
+
 
 
 # ------------------------------------

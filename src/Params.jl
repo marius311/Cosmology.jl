@@ -1,5 +1,5 @@
-@kwdef struct Params{T<:Real,Fxe,Fw,Fρextra}
-    #primary parameters
+@kwdef struct Params{T<:Real,Fxe,Fw,Fρextra,Fρνmassive}
+    # primary parameters
     ωb::T = 0.0225
     ωc::T = 0.12
     H0::T = 67.0
@@ -13,14 +13,17 @@
     w::Fw = (z->-1)
     ρextra::Fρextra = (z->0)
     
-    #derived
+    # precomputable functions
+    ρνmassive::Fρνmassive = ρνmassive
+    
+    # derived
     ρb₀::T=NaN; ρc₀::T=NaN; ρν₀::T=NaN; ργ₀::T=NaN; ρk₀::T=NaN; ρΛ₀::T=NaN
     ων::T=NaN; ωγ::T=NaN; ωk::T=NaN; ωΛ::T=NaN
     Ωb::T=NaN; Ωc::T=NaN; Ων::T=NaN; Ωγ::T=NaN; ΩΛ::T=NaN
     Tγ₀::T=NaN
     h²::T=NaN
     
-    #accuracy
+    # accuracy
     reltol::T = 1e-4
 
 end
