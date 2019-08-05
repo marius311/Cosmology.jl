@@ -53,15 +53,15 @@ end
 @self Params Hubble(z) = √(8π/3)*√(ρk₀*(1+z)^2 + ρb(z) + ρc(z) + ρΛ(z) + ργ(z) + ρν(z) + ρextra(z))
 
 """
-Θs at the decoupling redshift calculated from zstar_HS. 
+θs at the decoupling redshift calculated from zstar_HS. 
 
 This is like CosmoMC's "theta_mc", except CosmoMC's also uses some additional
 approximations which we don't use here. 
 """
-@self Params Θmc() = Θs(zstar_HS())
+@self Params θmc() = θs(zstar_HS())
 
 """Angular size of the sound horizon [rad] at redshift z"""
-@self Params Θs(z) = rs(z) / DA(z)
+@self Params θs(z) = rs(z) / DA(z)
 
 """Conformal time between two redshifts (positive if z2>z1)."""
 @self Params η(z1,z2) = integrate(z->1/Hubble(z), z1, z2)
@@ -140,13 +140,12 @@ end
 @self Params rdrag() = rs(zdrag())
 
 
-
 # -------------
 # Miscellaneous
 # -------------
 
-"""Set Θmc (by adjusting H0 accordingly). Returns H0."""
-@self Params theta2hubble!(Θ) = find_zero((H0′->(H0=H0′; add_derived!(); Θmc()-Θ)), 20, 200)
+"""Set θmc (by adjusting H0 accordingly). Returns H0."""
+@self Params theta2hubble!(θ) = find_zero((H0′->(H0=H0′; init_background!(); θmc()-θ)), 20, 200)
 
 """Redshift at decoupling using fitting formula from Hu & Sugiyama """
 @self Params zstar_HS() = 1048*(1+0.00124*ωb^(-0.738))*(1+(0.0783*ωb^(-0.238)/(1+39.5*ωb^0.763))*(ωb+ωc+ων)^(0.560/(1+21.1*ωb^1.81)))

@@ -27,7 +27,7 @@ end
     z = camb_derived["zstar"]
     @test @equalish DA(p,z)/Mpc camb_res[:angular_diameter_distance](z)*(1+z)
     @test @equalish rs(p,z)/Mpc camb_derived["rstar"]
-    @test @equalish Θs(p,z)     camb_derived["thetastar"]/100
+    @test @equalish θs(p,z)     camb_derived["thetastar"]/100
     @test @equalish zdrag(p)    camb_derived["zdrag"] #is failing with ftol=1e-4 though
     
 end

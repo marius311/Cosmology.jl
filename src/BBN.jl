@@ -1,6 +1,4 @@
 
-export init_bbn!
-
 @self Params function init_bbn!()
     dat = readdlm(joinpath(dirname(@__FILE__),"..","dat","BBN_full_alterBBN_880.1.dat"),comments=true)
     ωbs, ΔNeffs = unique(dat[:,1]), unique(dat[:,3])
