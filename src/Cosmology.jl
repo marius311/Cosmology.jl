@@ -18,7 +18,7 @@ export new_params, Params, add_derived!,
        rs_vis, rd_vis, 
        ⅆrs_ⅆz, ⅆrd²_ⅆz, ⅆτ_ⅆz
        
-export init_bbn!, init_background!       
+export init_bbn!, init_background!, init_reio!
 
 
 include("Units.jl")
