@@ -41,7 +41,7 @@ The field of Cosmology already has some pretty mature and widely used codes whic
 
 * The code is far more **readable**. These calculations shouldn't be a black box only a few experts understand. Julia is built to write clear scientific code (for example, the aforemention angular diameter distance calculation is roughly **10x fewer lines of code** than either CAMB or CLASS's, and still faster). A few specific things that really help:
 
-    * **Unicode variable names**. This may seem silly but it makes a big differnce in reading code when you're familiar with the equations but not with the code-based. Julia has many more Unicode characters available than Python, so this works really well. E.g., a code snippet:
+    * **Unicode variable names**. This may seem silly but it makes a big differnce in reading code when you're familiar with the equations but not with the code-base. And Julia has many more Unicode characters available than Python, so this works really well. E.g., a code snippet:
     
         ```julia
         function add_derived!()
