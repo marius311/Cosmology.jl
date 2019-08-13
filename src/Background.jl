@@ -7,13 +7,13 @@
 """Energy density in photons at redshift z"""
 @self Params ργ(z) = ργ₀*(1+z)^4
 
-"""Energy density in photons at redshift z"""
+"""Energy density in dark energy at redshift z"""
 @self Params ρΛ(z) = ρΛ₀*(1+z)^(3*(1+w(z)))
 
-"""Energy density in cold dark matter at redshift """
+"""Energy density in cold dark matter at redshift z"""
 @self Params ρc(z) = ρc₀*(1+z)^3
 
-"""Energy density in cold dark matter at redshift z"""
+"""Energy density in baryons at redshift z"""
 @self Params ρb(z) = ρb₀*(1+z)^3
 
 """Energy density in massless+massive neutrinos at redshift z"""
