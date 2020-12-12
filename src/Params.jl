@@ -41,51 +41,51 @@ end
 # p broadcasts as a scalar  
 Broadcast.broadcastable(p::Params) = Ref(p)
 
-@self Params function init_background!()
-    h² = (H0/100)^2
-    #photons
-    Tγ₀ = (Tcmb*Kelvin)
-    ργ₀ = (π²/15)*Tγ₀^4
-    ωγ = ργ₀/ρx_over_ωx
-    Ωγ = ωγ/h²
-    #baryons
-    ρb₀ = ωb*ρx_over_ωx
-    Ωb = ωb/h²
-    #CDM
-    ρc₀ = ωc*ρx_over_ωx
-    Ωc = ωc/h²
-    #Neutrinos
-    if mν == 0
-        Nν_massless = Nν_massless + Nν_massive
-        Nν_massive = 0
+function init_background!(𝕡)
+    @set! 𝕡.h² = h² = (𝕡.H0/100)^2
+    # photons
+    @set! 𝕡.Tγ₀ = 𝕡.Tcmb * Kelvin
+    @set! 𝕡.ργ₀ = (π²/15) * 𝕡.Tγ₀^4
+    @set! 𝕡.ωγ = 𝕡.ργ₀ / ρx_over_ωx
+    @set! 𝕡.Ωγ = 𝕡.ωγ / h²
+    # baryons
+    @set! 𝕡.ρb₀ = 𝕡.ωb * ρx_over_ωx
+    @set! 𝕡.Ωb = 𝕡.ωb / h²
+    # CDM
+    @set! 𝕡.ρc₀ = 𝕡.ωc * ρx_over_ωx
+    @set! 𝕡.Ωc = 𝕡.ωc / h²
+    # Neutrinos
+    if 𝕡.mν == 0
+        @set! 𝕡.Nν_massless += 𝕡.Nν_massive
+        @set! 𝕡.Nν_massive = 0
     end
-    ρν₀ = ρν(0)
-    ων = ρν₀/ρx_over_ωx
-    Ων = ων/h²
-    #Curvature
-    ωk = Ωk*h²
-    ρk₀ = ωk*ρx_over_ωx
-    #Dark energy
-    ΩΛ = 1 - Ωk - Ωb - Ωc - Ων - Ωγ
-    ωΛ = ΩΛ*h²
-    ρΛ₀ = ωΛ*ρx_over_ωx
+    @set! 𝕡.ρν₀ = ρν(𝕡,0)
+    @set! 𝕡.ων = 𝕡.ρν₀ / ρx_over_ωx
+    @set! 𝕡.Ων = 𝕡.ων / h²
+    # Curvature
+    @set! 𝕡.ωk = 𝕡.Ωk * h²
+    @set! 𝕡.ρk₀ = 𝕡.ωk * ρx_over_ωx
+    # Dark energy
+    @set! 𝕡.ΩΛ = 1 - 𝕡.Ωk - 𝕡.Ωb - 𝕡.Ωc - 𝕡.Ων - 𝕡.Ωγ
+    @set! 𝕡.ωΛ = 𝕡.ΩΛ * h²
+    @set! 𝕡.ρΛ₀ = 𝕡.ωΛ * ρx_over_ωx
 end
 
 
 
-function new_params(T=Float64;kwargs...)
-    p = Params(;kwargs...)
-    p = init_background!(p)
-    p = init_bbn!(p)
-    p = init_reio!(p)
-    p
+function new_params(T=Float64; kwargs...)
+    𝕡 = Params(;kwargs...)
+    𝕡 = init_background!(𝕡)
+    𝕡 = init_bbn!(𝕡)
+    𝕡 = init_reio!(𝕡)
+    𝕡
 end
     
 
-@self Params{T} function integrate(f, xmin, xmax) where {T}
-    quadgk(f, convert(T,xmin), convert(T,xmax); rtol=reltol)[1]::T
+function integrate(𝕡::Params{T}, f, xmin, xmax) where {T}
+    quadgk(f, convert(T,xmin), convert(T,xmax); rtol=𝕡.reltol)[1]::T
 end
 
-@self Params{T} function find_zero(f, xmin, xmax) where {T}
-    Roots.find_zero(f, (convert(T,xmin), convert(T,xmax)), Roots.A42(); xrtol=reltol)::T
+function find_zero(𝕡::Params{T}, f, xmin, xmax) where {T}
+    Roots.find_zero(f, (convert(T,xmin), convert(T,xmax)), Roots.A42(); xrtol=𝕡.reltol)::T
 end

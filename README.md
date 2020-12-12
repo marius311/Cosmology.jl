@@ -5,12 +5,12 @@
 Cosmology.jl is a code written in [Julia](http://julialang.org/) to compute various cosmological quantities like angular diameter distances, (WIP:) matter power spectra, or (TODO:) the CMB anisotropy spectra.
 
 Requirements:
-* Julia 1.1 or higher
+* Julia 1.5 or higher
 
 Installation (from the package prompt):
 
 ```julia
-add https://github.com/marius311/SelfFunctions.jl https://github.com/marius311/Cosmology.jl
+pkg> add https://github.com/marius311/SelfFunctions.jl https://github.com/marius311/Cosmology.jl
 ```
 
 Example:
@@ -37,7 +37,7 @@ Things currently handled correctly:
 
 The field of Cosmology already has some pretty mature and widely used codes which perform these calculations, [CAMB](camb.info) and [CLASS](class-code.net). So why Cosmology.jl?
 
-* Cosmology.jl can be **faster**. Julia is [JIT](https://en.wikipedia.org/wiki/Just-in-time_compilation) compiled to native code, so it can be just as fast as C or Fortran, or faster. As a simple example where the codes perform essentially identical mathematical computations, the current calculation of the angular diameter distance is 5x faster than CAMB. This is encouraging and I see no reason more complex calculations can't have similar performance. 
+* Cosmology.jl can be **faster**. Julia is [JIT](https://en.wikipedia.org/wiki/Just-in-time_compilation) compiled to native code, so it can be just as fast as C or Fortran, or faster. As a simple example where the codes perform essentially identical mathematical computations, the current calculation of the angular diameter distance is **7x faster than CAMB**. This is encouraging and I see no reason more complex calculations can't have similar performance. 
 
 * The code is far more **readable**. These calculations shouldn't be a black box only a few experts understand. Julia is built to write clear scientific code (for example, the aforemention angular diameter distance calculation is roughly **10x fewer lines of code** than either CAMB or CLASS's, and still faster). A few specific things that really help:
 
@@ -80,26 +80,4 @@ The field of Cosmology already has some pretty mature and widely used codes whic
     
     * **Planck units** Absolutely every quantity in Cosmology.jl is in Planck units, so there's never any confusion, and equations are as simple as possible.  (Other codes don't do this in an attempt to keep native 32bit support, since 32bit floats don't have a big enough exponent for expressing cosmological quantities in Planck units; we drop native 32bit support, i.e. you can run on 32bit, but its slower)
     
-    * **@self macro** These calculations involve lots of parameters, usually stored in some kind of parameter type, call it `params`. We use a macro `@self` that lets us omit having to write `params.X` every time we need to access parameter `X`, or having to pass `params` around to sub-functions. Its not a huge deal, but does make code a lot less cluttered. For example, instead of this,
-    
-        ```julia
-        function Hubble(params,z)
-            √(8π/3*(params.ργ₀*(1+z)^4 + params.ρm₀*(1+z)^3 + ρν(params,z) + params.ρΛ))
-        end
-        ``` 
-        
-        we have this,
-        
-        ```julia
-        @self Params function Hubble(z)
-            √(8π/3*(ργ₀*(1+z)^4 + ρm₀*(1+z)^3 + ρν(z) + ρΛ))
-        end
-        ```
-        
-        Macros are just one of the many language features of Julia that lets us write great scientific code.
-    
-* Opens up the possibility of **CPU vectorization**, **GPU acceleration** and **automatic differentiation**. In Julia you can easily use the vectorization features of your processor by prepending code with the `@simd` macro. You can also use any of the GPU programming packages like [ArrayFire](https://github.com/JuliaComputing/ArrayFire.jl) to run computations on your GPU. Either of these things would take lots of complex C / Fortran code, but can work almost transparently with Julia. 
-
-    Additionally, Julia has several [automatic differentiation](http://www.juliadiff.org/) (AD) packages. AD means that you write your function, say `f(x)`, and Julia automatically writes the corresponding *exact* derivative of this function `df(x)/dx`, for you. This can be done for many complex functions `f` even if they contain if statements, for loops, etc... This is different than computing finite differences; these are *exact* derivatives, and they take only O(1) times longer than the original function to compute. These can then be used in conjunction with more sophisticated ODE solvers or quadrature function to make the code even faster. 
-
-    These three things aren't currently in use in Cosmology.jl, but potentially could be resulting in even more drastic speed improvements in the future. 
+* Opens up the possibility **GPU acceleration** and **automatic differentiation**. Julia has great support for automatic differentiation, which works through almost any arbitrary Julia code. Something like [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl) should work almost out-of-the-box and provide exact gradients in O(1) times the cost of running the calculation itself. Not only can this be used to compute Fisher matrices or for analysis techniques that require likelihood gradients (HMC, VI, etc...), but exact gradients can also be used to speed up the internal ODE solvers too. Additionally, Julia has great GPU integration, and using something like [CUDA.jl](https://github.com/JuliaGPU/CUDA.jl) or [KernelAbstractions.jl](https://github.com/JuliaGPU/KernelAbstractions.jl) one could offload much of the computation to GPU almost transparently, and without needing to write anything beside Julia code. 
