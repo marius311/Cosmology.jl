@@ -7,7 +7,6 @@ using Dierckx
 using Libdl
 using Parameters
 using QuadGK
-using SelfFunctions
 using Setfield
 
 
