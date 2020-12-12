@@ -1,4 +1,6 @@
+
 @kwdef struct Params{T<:Real,Fxe,Fw,Fρextra,Fρνmassive}
+    
     # primary parameters
     ωb::T = 0.0225
     ωc::T = 0.12
@@ -28,6 +30,14 @@
 
 end
 
+# fall back which promotes everything to a common numeric type if we tried to
+# construct with mixed types
+function Params(args...)
+    T = promote_type(map(typeof, filter(arg -> arg isa Number, args))...)
+    Params(map(arg -> arg isa Number ? T(arg) : arg, args)...)
+end
+
+
 # p broadcasts as a scalar  
 Broadcast.broadcastable(p::Params) = Ref(p)
 
@@ -46,7 +56,7 @@ Broadcast.broadcastable(p::Params) = Ref(p)
     Ωc = ωc/h²
     #Neutrinos
     if mν == 0
-        Nν_massless += Nν_massive
+        Nν_massless = Nν_massless + Nν_massive
         Nν_massive = 0
     end
     ρν₀ = ρν(0)

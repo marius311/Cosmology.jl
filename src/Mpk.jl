@@ -22,7 +22,7 @@ export solve_boltz
         
         ψ = ϕ
         
-        R = (3ρb(z))/(4ργ(z))
+        R = 3ρb(z)/4ργ(z)
         cₛ² = 1/(3(1+R))
         nₑ = ρb(z)/mp
         
