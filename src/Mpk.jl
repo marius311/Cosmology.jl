@@ -1,19 +1,11 @@
-module Mpk
 
-using Cosmology: Hubble, Params, ργ, ρν, η, ρc, ρb
-using ODESolve: @eqs, odesolve
-using PhysicalConstants: mp, σT
-using NamedArrays
+function solve_boltz(𝕡::Params{T}, ks) where {T}
 
-export solve_boltz
-
-@self Params function solve_boltz(ks::Array, zs::Array)
-
-    function F(k, lna, y, dy_dlna)
+    function F(dy_dlna, y, k, lna)
 
         a = exp(lna)
         z = 1/a - 1
-        H = Hubble(z)
+        H = Hubble(𝕡,z)
         k² = k^2
         
         δγ,  θγ,  δc,  θc,  δb,  θb,  ϕ  = y
@@ -22,11 +14,12 @@ export solve_boltz
         
         ψ = ϕ
         
-        R = 3ρb(z)/4ργ(z)
+        R = 3ρb(𝕡,z)/4ργ(𝕡,z)
         cₛ² = 1/(3(1+R))
-        nₑ = ρb(z)/mp
+        nₑ = ρb(𝕡,z)/mp
         
         @eqs begin
+
             #Photons 
             δγ′ == -4/3*θγ + 4ϕ′
             θγ′ == k²/4*δγ + k²*ψ + a*nₑ*σT*(θb-θγ)
@@ -40,30 +33,20 @@ export solve_boltz
             θb′ == -(a′/a)*θb + cₛ²*k²*δb + a*nₑ*σT/R*(θγ-θb) + k²*ψ
             
             #Einstein equations
-            k²*ϕ + 3*(a′/a)*(ϕ′+(a′/a)*ψ) == -4π*a^2*(ρc(z)*δc + ρb(z)*δb + (ργ(z)+ρν(z))*δγ)
+            k²*ϕ + 3*(a′/a)*(ϕ′+(a′/a)*ψ) == -4π*a^2*(ρc(𝕡,z)*δc + ρb(𝕡,z)*δb + (ργ(𝕡,z)+ρν(𝕡,z))*δγ)
+        
         end
         
     end
     
-    vars =        [ :δγ, :θγ, :δc, :θc, :δb, :θb, :ϕ ]
-    y₀   = Float64[  4,   0,   3,   0,   3,   0,  -2 ]
-    y′₀  = Float64[  0,   0,   0,   0,   0,   0,   0 ]
+    vars =                             [ :δγ, :θγ, :δc, :θc, :δb,  :θb, :ϕ ]
+    y₀   = ComponentArray((;(vars .=> T[   4,   0,   3,   0,   3,   0,  -2 ])...))
+    y′₀  = ComponentArray((;(vars .=> T[   0,   0,   0,   0,   0,   0,   0 ])...))
     
     a₀ = 1e-7
-    as = 1./(1+zs)
     
-    vars′ = [symbol(string(v)"′") for v in vars]
-    soln = NamedArray(zeros(Float64,2*length(vars),length(ks),length(zs)), ([vars; vars′],ks,zs), ("var","k","z"))
-    
-    for (i,k) in enumerate(ks)
-        y, y′ = odesolve((args...)->F(k,args...),y₀,y′₀,log([a₀,as...]))
-        soln[1:length(vars),    i,:] = y[2:end,:]'
-        soln[length(vars)+1:end,i,:] = y′[2:end,:]'
+    tmap(ks) do k
+        solve(DAEProblem(F, y′₀, y₀, (log(a₀),0), k), IDA(), reltol=1e-4)
     end
     
-    soln
-    
-end
-
-
 end

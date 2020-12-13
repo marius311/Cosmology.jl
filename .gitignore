@@ -3,4 +3,4 @@ deps/deps.jl
 deps/build.log
 .tags
 .vscode
-nb
+*.ipynb_checkpoints

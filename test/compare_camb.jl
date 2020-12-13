@@ -35,7 +35,7 @@ end
 # set mν=0 for speed comparison (we can't directly compare when mν!=0 since CAMB
 # uses some approximations that we don't)
 cp = camb.get_background(camb.set_params(H0=67, ombh2=0.0225, omch2=0.12, mnu=0, nnu=3.046, tau=0.07, YHe=0.25))
-𝕡 = new_params(;H0=67, ωb=0.0225, ωc=0.12, mν=0, Nν_massive=1, Nν_massless=2.046, reltol=1e-3)
+𝕡 = new_params(;H0=67, ωb=0.0225, ωc=0.12, mν=0, Nν_massive=1, Nν_massless=2.046, reltol=1e-4)
 
 tus = @belapsed DA($𝕡, 1100.)
 # ccall directly into the Fortran library to avoid any overhead
