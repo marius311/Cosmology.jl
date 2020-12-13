@@ -10,7 +10,7 @@ Requirements:
 Installation (from the package prompt):
 
 ```julia
-pkg> add https://github.com/marius311/SelfFunctions.jl https://github.com/marius311/Cosmology.jl
+pkg> add https://github.com/marius311/Cosmology.jl
 ```
 
 Example:
