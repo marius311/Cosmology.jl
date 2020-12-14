@@ -20,3 +20,11 @@ macro eqs(ex)
         [$(tmps...)]
     end)
 end
+
+function integrate(𝕡::Params{T}, f, xmin, xmax) where {T}
+    quadgk(f, convert(T,xmin), convert(T,xmax); rtol=𝕡.reltol)[1]::T
+end
+
+function find_zero(𝕡::Params{T}, f, xmin, xmax) where {T}
+    Roots.find_zero(f, (convert(T,xmin), convert(T,xmax)), Roots.A42(); xrtol=𝕡.reltol)::T
+end

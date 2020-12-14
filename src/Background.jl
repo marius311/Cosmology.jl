@@ -153,8 +153,8 @@ rdrag(𝕡) = rs(𝕡, zdrag(𝕡))
 # Miscellaneous
 # -------------
 
-"""Set θmc (by adjusting H0 accordingly). Returns H0."""
-theta2hubble!(𝕡,θ) = find_zero(𝕡, (H0′->(@set!(𝕡.H0=H0′); init_background!(𝕡); θmc(𝕡)-θ)), 20, 200)
+"""Get H0 corresponding to a given θmc."""
+theta2hubble(𝕡,θ) = find_zero(𝕡, (H0′->θmc(init_background!(@set(𝕡.H0=H0′)))-θ), 20, 200)
 
 """Redshift at decoupling using fitting formula from Hu & Sugiyama """
 zstar_HS(𝕡) = 1048*(1+0.00124*𝕡.ωb^(-0.738))*(1+(0.0783*𝕡.ωb^(-0.238)/(1+39.5*𝕡.ωb^0.763))*(𝕡.ωb+𝕡.ωc+𝕡.ων)^(0.560/(1+21.1*𝕡.ωb^1.81)))
