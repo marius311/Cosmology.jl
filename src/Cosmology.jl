@@ -24,10 +24,10 @@ export new_params, Params,
     init_bbn!, init_background!, init_reio!
 
 
-include("Util.jl")
 include("Units.jl")
 include("PhysicalConstants.jl")
 include("Params.jl")
+include("Util.jl")
 include("Background.jl")
 include("BBN.jl")
 include("Recfast.jl")
